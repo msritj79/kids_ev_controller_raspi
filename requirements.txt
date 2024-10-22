@@ -1,0 +1,2 @@
+dotenv==0.0.5
+paho-mqtt==2.1.0
