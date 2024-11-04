@@ -1,35 +1,30 @@
-from gpiozero import LED
 from time import sleep
 import RPi.GPIO as GPIO
 #constants
-gpio_status = GPIO.LOW
+
 pins = {
         'front':17,
         'rear':27
 }
 
 def toggle_light(pin, value):
-    global gpio_status
+    current_state = GPIO.input(pin)
     if value == "on":
-        if gpio_status != GPIO.HIGH:
+        if current_state != GPIO.HIGH:
             GPIO.output(pin, GPIO.HIGH)
-            gpio_status = GPIO.HIGH
             print(f"Light on (Pin: {pin})")
     elif value == "off":
-        if gpio_status != GPIO.LOW:
+        if current_state != GPIO.LOW:
             GPIO.output(pin, GPIO.LOW)
-            gpio_status = GPIO.LOW
             print(f"Light off (Pin: {pin})")
 
 def light_on(light_type:str):
-    global gpio_status
     pin = pins.get(light_type)
     toggle_light(pin, "on")
     print(f"{light_type} light on")
 
 
 def light_off(light_type:str):
-    global gpio_status
     pin = pins.get(light_type)
     toggle_light(pin, "off")
     print(f"{light_type} light off")

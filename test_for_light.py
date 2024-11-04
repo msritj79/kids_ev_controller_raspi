@@ -21,10 +21,11 @@ GPIO.setup(27, GPIO.OUT)
 try:
     while True:
         light_controller.light_on("rear")
+        time.sleep(1)
+        light_controller.light_on("rear")
+        light_controller.light_on("front")
         time.sleep(2)
         light_controller.light_off("rear")
-        time.sleep(2)
-        light_controller.light_on("front")
         time.sleep(2)
         light_controller.light_off("front")
         time.sleep(2)
