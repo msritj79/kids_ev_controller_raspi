@@ -1,7 +1,6 @@
 from time import sleep
 import RPi.GPIO as GPIO
 #constants
-
 pins = {
         'front':17,
         'rear':27
