@@ -19,6 +19,7 @@ def initialize():
     global strip
     strip = PixelStrip(led_count, led_pin, led_freq_hz, led_dma, led_invert, led_brightness, led_channel)
     strip.begin()
+    print("Initialize illumi")
 
 def turn_off():
     """Turns off all LEDs."""
@@ -26,7 +27,7 @@ def turn_off():
         strip.setPixelColor(i, Color(0, 0, 0))  # Set all pixels to black
     strip.setBrightness(0)
     strip.show()
-    # strip._cleanup()
+    strip._cleanup()
 
 def set_color(red, green, blue, alpha):
     """Sets the LEDs to a specific color with brightness."""
