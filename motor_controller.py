@@ -8,8 +8,8 @@ AN1 = 12				# set pwm1 pin on MD10-hat
 DIG2 = 24				# set dir2 pin on MD10-Hat
 DIG1 = 26				# set dir1 pin on MD10-Hat
 # speed and time to rotate steer motor for smooth control 
-STEER_CONTROL_SPEED = 60
-STEER_CONTROL_TIME = 0.1
+STEER_CONTROL_SPEED = 70
+STEER_CONTROL_TIME = 0.2
 
 pwm_accel = None
 pwm_steer = None
@@ -19,21 +19,25 @@ def initialize_gpio():
     global is_initialized, pwm_accel, pwm_steer
     if is_initialized:
         return
+    try:
+        GPIO.setmode(GPIO.BCM)			# GPIO numbering
+        GPIO.setwarnings(False)			# enable warning from GPIO
+        GPIO.setup(AN2, GPIO.OUT)		# set pin as output
+        GPIO.setup(AN1, GPIO.OUT)		# set pin as output
+        GPIO.setup(DIG2, GPIO.OUT)		# set pin as output
+        GPIO.setup(DIG1, GPIO.OUT)		# set pin as output
+        sleep(1)				# delay for 1 seconds
+        pwm_accel = GPIO.PWM(AN1, 100)
+        pwm_steer = GPIO.PWM(AN2, 100)
+        pwm_accel.start(0)
+        pwm_steer.start(0)
 
-    GPIO.setmode(GPIO.BCM)			# GPIO numbering
-    GPIO.setwarnings(False)			# enable warning from GPIO
-    GPIO.setup(AN2, GPIO.OUT)		# set pin as output
-    GPIO.setup(AN1, GPIO.OUT)		# set pin as output
-    GPIO.setup(DIG2, GPIO.OUT)		# set pin as output
-    GPIO.setup(DIG1, GPIO.OUT)		# set pin as output
-    sleep(1)				# delay for 1 seconds
-    pwm_accel = GPIO.PWM(AN1, 100)
-    pwm_steer = GPIO.PWM(AN2, 100)
-    pwm_accel.start(0)
-    pwm_steer.start(0)
+        is_initialized = True
+        print("GPIO for motion control is initialized")
+    
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
-    is_initialized = True
-    print("GPIO for motion control is initialized")
 
 def set_accel_speed(speed, direction):
     """
@@ -76,16 +80,17 @@ def set_steer(direction):
     pwm_steer.ChangeDutyCycle(0)
 
 def stop_motors():
-    global is_initialized
     """モータを停止し、GPIOをクリーンアップする"""
+    # global is_initialized
     set_accel_speed(0, "forward")
     # set_steer("left")
-    pwm_accel.stop()
-    pwm_steer.stop()
-    GPIO.cleanup([AN1, AN2, DIG1, DIG2])
+    # pwm_accel.stop()
+    # pwm_steer.stop()
+    # GPIO.cleanup([AN1, AN2, DIG1, DIG2])
 
-    print("Motors stopped")
-    is_initialized = False
+    # print("Motors stopped")
+    # initializeを再度するときになぜかエラーになるのでやらない
+    # is_initialized = False
 
 if __name__ == "__main__":
     try:

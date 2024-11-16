@@ -11,12 +11,13 @@ import engine_sound_controller
 # cannot operate manually after remote control, for the duration of TIMEOUT
 TIMEOUT = 3  # second
 stop_timer = None
-MANUAL_ACCEL_VALUE_FORWARD = 75
-MANUAL_ACCEL_VALUE_BACKWARD = 75
+MANUAL_ACCEL_VALUE_FORWARD = 80
+MANUAL_ACCEL_VALUE_BACKWARD = 100
 is_remote_controlled = False
 is_running_forward = False
 is_running_backward = False
 engine_sound_type = "sports"
+is_illumi_initialized = False
 
 # Example of subscribing to commands
 def notify(command):
@@ -26,6 +27,8 @@ def notify(command):
 def call_command(command):
     global is_running_forward
     global is_running_backward
+    global engine_sound_type
+    global is_illumi_initialized
     
     if "headLight" in command:
         if command["headLight"] == "ON":
@@ -34,12 +37,15 @@ def call_command(command):
             light_controller.headlight_off()
         else:
             print("Invalid headLight command")
+    
+    if "engine_sound" in command:
+        engine_sound_type = command["engine_sound"]
 
     if "accel" in command:
         accel_value = command["accel"]
         if accel_value > 0:
             accel_value = max(accel_value, 50)
-            accel_value = min(accel_value, 75)
+            accel_value = min(accel_value, 80)
             motor_controller.set_accel_speed(speed=accel_value, direction="forward")
             # print(f"[set_accel]speed:{accel_value}, direction:forward")
 
@@ -53,7 +59,7 @@ def call_command(command):
         elif accel_value < 0:
             accel_value = -accel_value
             accel_value = max(accel_value, 50)
-            accel_value = min(accel_value, 75)
+            accel_value = min(accel_value, 100)
             motor_controller.set_accel_speed(speed=accel_value, direction="backward")
             # print(f"[set_accel]speed:{accel_value}, direction:backward")
 
@@ -82,14 +88,16 @@ def call_command(command):
         elif direction == "right":
             motor_controller.set_steer(direction="right")
         set_remote_motion_control_mode()
-
+        
     if "illumi" in command:
         illumi_data = command["illumi"]
         
         # Illumination On/Off control
         if "status" in illumi_data:
             if illumi_data["status"] == "on":
-                illumi_controller.initialize()
+                if not is_illumi_initialized:
+                    illumi_controller.initialize()
+                    is_illumi_initialized = True
             elif illumi_data["status"] == "off":
                 illumi_controller.turn_off()
             else:

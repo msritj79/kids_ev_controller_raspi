@@ -33,7 +33,7 @@ def play(sound_type, volume):
             pygame.mixer.quit()
             os.environ['SDL_AUDIODRIVER'] = 'alsa'  # または 'alsa'
             pygame.mixer.init(
-                frequency=50000,  # サンプリング周波数（Hz）
+                frequency=60000,  # サンプリング周波数（Hz）
                 size=-16,         # サンプルサイズ（ビット）
                 channels=2,       # チャンネル数（1:モノラル、2:ステレオ）
                 buffer=2048       # バッファサイズ（バイト）
