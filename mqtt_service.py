@@ -31,7 +31,7 @@ class MQTTClient:
     def on_message(self, client, data, msg):
         """Called when a message is received from the broker."""
         command = json.loads(msg.payload)
-        print(f"Received command: {command}")
+        # print(f"Received command: {command}")
 
         # Notify all registered subscribers
         for notify_callback in self.subscribers:

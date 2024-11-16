@@ -7,6 +7,9 @@ AN2 = 13				# set pwm2 pin on MD10-Hat
 AN1 = 12				# set pwm1 pin on MD10-hat
 DIG2 = 24				# set dir2 pin on MD10-Hat
 DIG1 = 26				# set dir1 pin on MD10-Hat
+# speed and time to rotate steer motor for smooth control 
+STEER_CONTROL_SPEED = 60
+STEER_CONTROL_TIME = 0.1
 
 pwm_accel = None
 pwm_steer = None
@@ -30,7 +33,7 @@ def initialize_gpio():
     pwm_steer.start(0)
 
     is_initialized = True
-    print("GPIO is initialized")
+    print("GPIO for motion control is initialized")
 
 def set_accel_speed(speed, direction):
     """
@@ -41,7 +44,7 @@ def set_accel_speed(speed, direction):
     if not is_initialized:
         initialize_gpio()
 
-    print(f"[set_accel]speed:{speed}, direction:{direction}")
+    # print(f"[set_accel]speed:{speed}, direction:{direction}")
     if direction == "forward":
         GPIO.output(DIG1, GPIO.LOW)
     elif direction == "backward":
@@ -51,7 +54,7 @@ def set_accel_speed(speed, direction):
     
     pwm_accel.ChangeDutyCycle(speed)
 
-def set_steer_speed(angle, direction):
+def set_steer(direction):
     """
     Steerモータの速度と方向を設定する
     :param speed: 速度（0〜100）
@@ -60,23 +63,26 @@ def set_steer_speed(angle, direction):
     if not is_initialized:
         initialize_gpio()
 
-    print(f"[steer]angle:{angle}, direction:{direction}")
+    # print(f"[steer]angle:{angle}, direction:{direction}")
     if direction == "left":
-        GPIO.output(DIG2, GPIO.LOW)
-    elif direction == "right":
         GPIO.output(DIG2, GPIO.HIGH)
+    elif direction == "right":
+        GPIO.output(DIG2, GPIO.LOW)
     else:
         raise ValueError("Invalid direction for Steer. Use 'left' or 'right'.")
-    
-    pwm_steer.ChangeDutyCycle(angle)
+    # control steer for 1s
+    pwm_steer.ChangeDutyCycle(STEER_CONTROL_SPEED)
+    sleep(STEER_CONTROL_TIME)
+    pwm_steer.ChangeDutyCycle(0)
 
 def stop_motors():
     global is_initialized
     """モータを停止し、GPIOをクリーンアップする"""
     set_accel_speed(0, "forward")
-    set_steer_speed(0, "left")
+    # set_steer("left")
     pwm_accel.stop()
     pwm_steer.stop()
+    GPIO.cleanup([AN1, AN2, DIG1, DIG2])
 
     print("Motors stopped")
     is_initialized = False
@@ -86,16 +92,16 @@ if __name__ == "__main__":
         while True:
             # 加速と操舵を個別に設定して走行制御
             set_accel_speed(80, "forward")
-            set_steer_speed(60, "left")
+            set_steer("left")
             sleep(2)
 
             set_accel_speed(80, "backward")
-            set_steer_speed(60, "right")
+            set_steer("right")
             sleep(2)
 
             # 停止
             set_accel_speed(0, "forward")
-            set_steer_speed(0, "left")
+            set_steer("left")
             sleep(2)
 
     except KeyboardInterrupt:

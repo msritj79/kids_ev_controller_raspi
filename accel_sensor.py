@@ -8,7 +8,7 @@ REVERSE_PIN = 15
 
 is_initialized = False
 
-def initialize_gpio():
+def initialize_accel_sensor_gpio():
     global is_initialized
     if is_initialized:
         return
@@ -22,9 +22,12 @@ def initialize_gpio():
 
 
     is_initialized = True
-    print("GPIO is initialized")
+    print("GPIO for accel sensor is initialized")
 
 def check_gear_state():
+    if not is_initialized:
+        initialize_accel_sensor_gpio()
+
     if GPIO.input(FORWARD_PIN) == GPIO.LOW:
         return "forward"
     elif GPIO.input(REVERSE_PIN) == GPIO.LOW:
@@ -34,7 +37,7 @@ def check_gear_state():
 
 if __name__ == "__main__":
     try:
-        initialize_gpio()
+        initialize_accel_sensor_gpio()
         while True:
             gear_state = check_gear_state()
 
